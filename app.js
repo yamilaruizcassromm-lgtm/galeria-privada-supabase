@@ -1,32 +1,35 @@
-// Importar el cliente de Supabase desde CDN
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-// TODO: Reemplaza estos valores con tu URL y tu Anon Key de Supabase
+// Como se carga por script global, usamos window.supabase
 const SUPABASE_URL = 'https://wvbmmhnmqzsdqdioczbe.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2Ym1taG5tcXpzZHFkaW9jemJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNDkyNzcsImV4cCI6MjEwNjcyNTI3N30.4tbsLLGvbvjbc-LnxUNDrjtO7P92hiW-fae4t9RRez4';
 
-// Inicializar el cliente de Supabase
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Seleccionar elementos del DOM
 const fileInput = document.getElementById("file-input");
 const uploadBtn = document.getElementById("upload-btn");
 const uploadMsg = document.getElementById("upload-msg");
 const galleryGrid = document.getElementById("gallery-grid");
-const userStatus = document.getElementById("user-status"); // Asegúrate de tener este elemento en tu HTML si deseas mostrar el estado
+const userStatus = document.getElementById("user-status");
 
 let currentUser = null;
 
-// Verificar sesión activa al cargar la página
+// Verificar sesión activa o iniciar anónimamente
 document.addEventListener("DOMContentLoaded", async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    let { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+        const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
+        if (!anonError) {
+            session = anonData.session;
+        }
+    }
+
     if (session) {
         currentUser = session.user;
-        if (userStatus) userStatus.textContent = `Conectado: ${currentUser.email}`;
+        if (userStatus) userStatus.textContent = `Conectado (ID: ${currentUser.id.substring(0, 6)}...)`;
         cargarGaleria();
     } else {
-        if (userStatus) userStatus.textContent = "Modo invitado o sesión no iniciada.";
-        // Si necesitas inicio de sesión anónimo o por correo, puedes gestionarlo aquí
+        if (userStatus) userStatus.textContent = "No se pudo iniciar sesión.";
     }
 });
 
@@ -45,31 +48,27 @@ uploadBtn.addEventListener("click", async () => {
     }
 
     if (!currentUser) {
-        alert("Debes iniciar sesión para subir imágenes.");
+        alert("No hay un usuario activo. Espera un momento o recarga la página.");
         return;
     }
 
     try {
         uploadMsg.textContent = "Subiendo imagen...";
 
-        // 1. Crear ruta única en el Storage: /usuarios/{user_id}/{timestamp}_{nombre}
         const filePath = `usuarios/${currentUser.id}/${Date.now()}_${file.name}`;
         
-        // Subir archivo al Storage de Supabase (asegúrate de tener un bucket llamado 'galeria' o el nombre que uses)
         const { data: storageData, error: storageError } = await supabase.storage
-            .from('galeria') // Nombre de tu bucket en Supabase Storage
+            .from('galeria')
             .upload(filePath, file);
 
         if (storageError) throw storageError;
 
-        // 2. Obtener la URL pública de la imagen
         const { data: urlData } = supabase.storage
             .from('galeria')
             .getPublicUrl(filePath);
 
         const imageUrl = urlData.publicUrl;
 
-        // 3. Guardar el registro en la tabla SQL 'galeria_imagenes'
         const { error: dbError } = await supabase
             .from('galeria_imagenes')
             .insert([
@@ -92,7 +91,7 @@ uploadBtn.addEventListener("click", async () => {
 
     } catch (error) {
         console.error("Error al procesar la imagen:", error.message);
-        uploadMsg.textContent = "Error al subir la imagen: " + error.message;
+        uploadMsg.textContent = "Error: " + error.message;
     }
 });
 
@@ -103,7 +102,6 @@ async function cargarGaleria() {
     if (!currentUser) return;
 
     try {
-        // Consultar la tabla filtrando por el usuario actual
         const { data: imagenes, error } = await supabase
             .from('galeria_imagenes')
             .select('*')
@@ -127,4 +125,4 @@ async function cargarGaleria() {
     } catch (error) {
         console.error("Error al cargar la galería:", error.message);
     }
-};
+}
