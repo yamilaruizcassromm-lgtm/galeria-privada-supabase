@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Imágenes Local - 100% Gratis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Galería de Imágenes Local (Gratis)</h1>
+        
+        <!-- Sección de Subida -->
+        <div class="upload-section">
+            <h2>Subir Nueva Imagen</h2>
+            <input type="file" id="file-input" accept="image/*">
+            <button id="upload-btn">Guardar Imagen</button>
+            <p id="upload-msg"></p>
+        </div>
+
+        <!-- Sección de Galería -->
+        <div class="gallery-section">
+            <h2>Imágenes Guardadas en este Navegador</h2>
+            <div id="gallery-grid" class="grid"></div>
+            <button id="clear-btn" class="danger-btn">Borrar Todas las Imágenes</button>
+        </div>
+    </div>
+
+    <!-- Archivo JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
