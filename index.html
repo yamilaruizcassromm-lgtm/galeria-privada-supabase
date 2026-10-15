@@ -3,30 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galería de Imágenes Local - 100% Gratis</title>
+    <title>Galería Privada - Supabase</title>
     <link rel="stylesheet" href="style.css">
+    <!-- SDK Global de Supabase UMD (Compatible con GitHub Pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Galería de Imágenes Local (Gratis)</h1>
+        <h1>Galería de Imágenes Privada</h1>
         
+        <!-- Estado de sesión -->
+        <div id="auth-section">
+            <p id="user-status">Conectando con Supabase...</p>
+        </div>
+
         <!-- Sección de Subida -->
-        <div class="upload-section">
+        <div id="upload-section">
             <h2>Subir Nueva Imagen</h2>
             <input type="file" id="file-input" accept="image/*">
-            <button id="upload-btn">Guardar Imagen</button>
+            <button id="upload-btn">Subir Imagen</button>
             <p id="upload-msg"></p>
         </div>
 
         <!-- Sección de Galería -->
-        <div class="gallery-section">
-            <h2>Imágenes Guardadas en este Navegador</h2>
+        <div id="gallery-section">
+            <h2>Mis Imágenes Guardadas</h2>
             <div id="gallery-grid" class="grid"></div>
-            <button id="clear-btn" class="danger-btn">Borrar Todas las Imágenes</button>
         </div>
     </div>
 
-    <!-- Archivo JavaScript -->
+    <!-- Archivo JavaScript normal (sin type="module") -->
     <script src="app.js"></script>
 </body>
 </html>
