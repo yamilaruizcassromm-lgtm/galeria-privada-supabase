@@ -16,11 +16,11 @@ body {
 }
 
 h1, h2 {
-    color: #2e7d32;
+    color: #1a73e8;
 }
 
 button {
-    background-color: #2e7d32;
+    background-color: #1a73e8;
     color: white;
     border: none;
     padding: 10px 15px;
@@ -31,16 +31,7 @@ button {
 }
 
 button:hover {
-    background-color: #1b5e20;
-}
-
-.danger-btn {
-    background-color: #c62828;
-    margin-top: 20px;
-}
-
-.danger-btn:hover {
-    background-color: #8e0000;
+    background-color: #1557b0;
 }
 
 input[type="file"] {

@@ -1,5 +1,5 @@
-// Como se carga por script global, usamos window.supabase
-const SUPABASE_URL = 'https://wvbmmhnmqzsdqdioczbe.supabase.co/rest/v1/o';
+// Credenciales de Supabase
+const SUPABASE_URL = 'https://wvbmmhnmqzsdqdioczbe.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2Ym1taG5tcXpzZHFkaW9jemJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNDkyNzcsImV4cCI6MjEwNjcyNTI3N30.4tbsLLGvbvjbc-LnxUNDrjtO7P92hiW-fae4t9RRez4';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -13,7 +13,7 @@ const userStatus = document.getElementById("user-status");
 
 let currentUser = null;
 
-// Verificar sesión activa o iniciar anónimamente
+// Verificar sesión activa o iniciar anónimamente al cargar la página
 document.addEventListener("DOMContentLoaded", async () => {
     let { data: { session } } = await supabase.auth.getSession();
     
@@ -57,18 +57,21 @@ uploadBtn.addEventListener("click", async () => {
 
         const filePath = `usuarios/${currentUser.id}/${Date.now()}_${file.name}`;
         
+        // Subir al Storage (asegúrate de que tu bucket se llame 'galeria')
         const { data: storageData, error: storageError } = await supabase.storage
             .from('galeria')
             .upload(filePath, file);
 
         if (storageError) throw storageError;
 
+        // Obtener URL pública
         const { data: urlData } = supabase.storage
             .from('galeria')
             .getPublicUrl(filePath);
 
         const imageUrl = urlData.publicUrl;
 
+        // Guardar registro en la tabla SQL 'galeria_imagenes'
         const { error: dbError } = await supabase
             .from('galeria_imagenes')
             .insert([
